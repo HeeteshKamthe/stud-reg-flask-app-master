@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Register a New Student</h2>
+<form id="regForm" method="POST" action="/register">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" name="name" required minlength="2">
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input type="tel" class="form-control" id="phone" name="phone" required pattern="\+?1?\\d{9,15}">
+    </div>
+    <div class="mb-3">
+        <label for="course" class="form-label">Course</label>
+        <input type="text" class="form-control" id="course" name="course" required>
+    </div>
+    <div class="mb-3">
+        <label for="address" class="form-label">Address</label>
+        <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+<script>
+    // Client-side validation
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const name = document.getElementById('name').value;
+        if (!email.includes('@') || !email.includes('.')) {
+            alert('Invalid email format.');
+            e.preventDefault();
+        }
+        if (!/^\+?1?\d{9,15}$/.test(phone)) {
+            alert('Invalid phone number.');
+            e.preventDefault();
+        }
+        if (name.length < 2) {
+            alert('Name must be at least 2 characters.');
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}
