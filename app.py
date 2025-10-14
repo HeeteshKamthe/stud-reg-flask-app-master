@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from models import db, Student
 from config import Config
 import re
+import traceback
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -16,7 +17,7 @@ def validate_form(name, email, phone, course, address):
         return False, "All fields are required."
     if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
         return False, "Invalid email format."
-    if not re.match(r"^\+?1?\d{9,15}$", phone):
+    if not re.match(r"^\+?[1-9]?\d{9,15}$", phone):
         return False, "Invalid phone number (e.g., +1234567890)."
     if len(name) < 2:
         return False, "Name must be at least 2 characters."
