@@ -12,7 +12,7 @@
     </div>
     <div class="mb-3">
         <label for="phone" class="form-label">Phone Number</label>
-        <input type="tel" class="form-control" id="phone" name="phone" required pattern="\+?1?\\d{9,15}">
+        <input type="tel" class="form-control" id="phone" name="phone" required pattern="\+?[1-9]?\d{9,15}">
     </div>
     <div class="mb-3">
         <label for="course" class="form-label">Course</label>
@@ -35,7 +35,7 @@
             alert('Invalid email format.');
             e.preventDefault();
         }
-        if (/^\+?[1-9]\d{9,14}$/.test(phone)) {
+        if (!/^\+?[1-9]\d{9,14}$/.test(phone)) {
             alert('Invalid phone number.');
             e.preventDefault();
         }
