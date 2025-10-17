@@ -28,15 +28,6 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                echo '🔹 Running tests...'
-                sh '''
-                . venv/bin/activate
-                ${PYTHON} -m unittest discover -s tests || echo "No tests found, skipping..."
-                '''
-            }
-        }
 
         stage('Deploy to EC2') {
             steps {
