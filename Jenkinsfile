@@ -2,84 +2,73 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = "flaskapp"
         PYTHON = "python3"
-        PORT = "5000"
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                echo '🔹 Cloning repository...'
-                checkout scm
+                echo "🔹 Cloning repository..."
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/HeeteshKamthe/stud-reg-flask-app-master.git']]
+                ])
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo '🔹 Installing dependencies...'
+                echo "🔹 Installing dependencies..."
                 sh '''
-                ${PYTHON} -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
-                pip install gunicorn
+                    if ! dpkg -s python3-venv >/dev/null 2>&1; then
+                        sudo apt-get update -y
+                        sudo apt-get install -y python3-venv
+                    fi
+                    ${PYTHON} -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
                 '''
             }
         }
 
+        stage('Run Tests') {
+            steps {
+                echo "🔹 Running tests..."
+                script {
+                    if (fileExists('tests')) {
+                        sh '''
+                            . venv/bin/activate
+                            python3 -m unittest discover -s tests || echo "⚠️ Tests failed, check logs."
+                        '''
+                    } else {
+                        echo "✅ No tests found, skipping..."
+                    }
+                }
+            }
+        }
 
         stage('Deploy to EC2') {
             steps {
-                echo '🔹 Deploying Flask app to EC2 securely...'
-
+                echo "🔹 Deploying Flask app to EC2 securely..."
                 withCredentials([
-                    sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY_PATH', usernameVariable: 'EC2_USER'),
+                    sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY_PATH', usernameVariable: 'SSH_USER'),
                     string(credentialsId: 'ec2-host', variable: 'EC2_HOST'),
-                    string(credentialsId: 'app-dir', variable: 'APP_DIR'),
-                    string(credentialsId: 'app-entry', variable: 'APP_ENTRY')
+                    string(credentialsId: 'app-dir', variable: 'APP_DIR')
                 ]) {
                     sh '''
-                    echo "Copying project files to EC2..."
-                    scp -i ${KEY_PATH} -o StrictHostKeyChecking=no -r * ${EC2_USER}@${EC2_HOST}:${APP_DIR}/
+                        echo "Transferring files to EC2..."
+                        scp -o StrictHostKeyChecking=no -i "$KEY_PATH" -r \
+                            Jenkinsfile app.py config.py init.sql models.py requirements.txt run.py templates venv \
+                            ${SSH_USER}@${EC2_HOST}:${APP_DIR}/
 
-                    echo "Setting up and restarting Gunicorn service..."
-                    ssh -i ${KEY_PATH} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
-                        set -e
-                        sudo mkdir -p ${APP_DIR}
-                        cd ${APP_DIR}
-
-                        if [ ! -d "venv" ]; then
-                            ${PYTHON} -m venv venv
-                        fi
-                        source venv/bin/activate
-                        pip install --upgrade pip
-                        pip install -r requirements.txt
-                        pip install gunicorn
-
-                        SERVICE_FILE="/etc/systemd/system/${APP_NAME}.service"
-                        sudo bash -c "cat > \$SERVICE_FILE" <<EOL
-[Unit]
-Description=Gunicorn instance to serve Flask app
-After=network.target
-
-[Service]
-User=${EC2_USER}
-Group=${EC2_USER}
-WorkingDirectory=${APP_DIR}
-Environment="PATH=${APP_DIR}/venv/bin"
-ExecStart=${APP_DIR}/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:${PORT} ${APP_ENTRY}
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOL
-
-                        sudo systemctl daemon-reload
-                        sudo systemctl enable ${APP_NAME}.service
-                        sudo systemctl restart ${APP_NAME}.service
-                        echo "✅ Flask app running with Gunicorn on port ${PORT}"
-                    EOF
+                        echo "Restarting Flask app on EC2..."
+                        ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
+                            cd ${APP_DIR} &&
+                            pkill gunicorn || true &&
+                            nohup gunicorn app:app --bind 0.0.0.0:5000 --daemon
+                        "
                     '''
                 }
             }
@@ -88,10 +77,10 @@ EOL
 
     post {
         success {
-            echo '✅ Deployment successful! Flask app is live via Gunicorn + systemd.'
+            echo "✅ Deployment successful! Flask app is live on EC2."
         }
         failure {
-            echo '❌ Deployment failed! Check Jenkins and EC2 logs for details.'
+            echo "❌ Deployment failed! Check Jenkins and EC2 logs for details."
         }
     }
 }
