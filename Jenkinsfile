@@ -49,30 +49,36 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2') {
-            steps {
-                echo "🔹 Deploying Flask app to EC2 securely..."
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY_PATH', usernameVariable: 'SSH_USER'),
-                    string(credentialsId: 'ec2-host', variable: 'EC2_HOST'),
-                    string(credentialsId: 'app-dir', variable: 'APP_DIR')
-                ]) {
-                    sh '''
-                        echo "Transferring files to EC2..."
-                        scp -o StrictHostKeyChecking=no -i "$KEY_PATH" -r \
-                            Jenkinsfile app.py config.py init.sql models.py requirements.txt run.py templates venv \
-                            ${SSH_USER}@${EC2_HOST}:${APP_DIR}/
+       stage('Deploy to EC2') {
+    steps {
+        echo "🔹 Deploying Flask app to EC2 securely..."
+        withCredentials([
+            sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY_PATH', usernameVariable: 'SSH_USER'),
+            string(credentialsId: 'ec2-host', variable: 'EC2_HOST'),
+            string(credentialsId: 'app-dir', variable: 'APP_DIR')
+        ]) {
+            sh '''
+                echo "🔹 Transferring files to EC2..."
+                echo "Using key at: $KEY_PATH"
+                echo "Deploying to host: $EC2_HOST"
+                echo "App directory: $APP_DIR"
 
-                        echo "Restarting Flask app on EC2..."
-                        ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
-                            cd ${APP_DIR} &&
-                            pkill gunicorn || true &&
-                            nohup gunicorn app:app --bind 0.0.0.0:5000 --daemon
-                        "
-                    '''
-                }
-            }
+                # Transfer project files
+                scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -r \
+                    Jenkinsfile app.py config.py init.sql models.py requirements.txt run.py templates venv \
+                    ${SSH_USER}@${EC2_HOST}:${APP_DIR}/
+
+                echo "🔹 Restarting Flask app on EC2..."
+                ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no ${SSH_USER}@${EC2_HOST} "
+                    cd ${APP_DIR} &&
+                    pkill -f gunicorn || true &&
+                    nohup gunicorn run:app --bind 0.0.0.0:5000 --daemon
+                "
+            '''
         }
+    }
+}
+
     }
 
     post {
