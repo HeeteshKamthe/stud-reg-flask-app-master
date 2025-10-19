@@ -68,23 +68,22 @@ pipeline {
                             sudo systemctl enable mariadb
 
                             echo '🔹 Creating database and dedicated user...'
-                            sudo mysql -u root -e \"
+                            sudo mysql -u root -e "
                             CREATE DATABASE IF NOT EXISTS ${DB_NAME};
                             CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
                             GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
                             FLUSH PRIVILEGES;
-
                             USE ${DB_NAME};
                             CREATE TABLE IF NOT EXISTS students (
-                                id INT AUTO_INCREMENT PRIMARY KEY,
-                                name VARCHAR(100) NOT NULL,
-                                email VARCHAR(100) UNIQUE NOT NULL,
-                                phone VARCHAR(20) NOT NULL,
-                                course VARCHAR(100) NOT NULL,
-                                address TEXT NOT NULL,
-                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            name VARCHAR(100) NOT NULL,
+                            email VARCHAR(100) UNIQUE NOT NULL,
+                            phone VARCHAR(20) NOT NULL,
+                            course VARCHAR(100) NOT NULL,
+                            address TEXT NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                             );
-                            \"
+                            "
 
                             echo '✅ Database, user, and table setup completed.'
                         '
