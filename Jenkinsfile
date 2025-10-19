@@ -75,7 +75,7 @@ pipeline {
                     sudo yum install python3-pip -y
                     pip install -r requirements.txt &&
                     pip install gunicorn &&
-                    pkill -f gunicorn || true &&
+                    
                     nohup gunicorn run:app --bind 0.0.0.0:5000 --daemon
                 "
             '''
