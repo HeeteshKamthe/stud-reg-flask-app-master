@@ -71,6 +71,8 @@ pipeline {
                 ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
                     cd ${APP_DIR} &&
                     source venv/bin/activate &&
+                    sudo yum install python3 -y
+                    sudo yum install python3-pip -y
                     pip install -r requirements.txt &&
                     pip install gunicorn &&
                     pkill -f gunicorn || true &&
