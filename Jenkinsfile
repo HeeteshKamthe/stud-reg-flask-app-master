@@ -63,7 +63,7 @@ pipeline {
                     sh '''
                         ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
                             echo '🔹 Installing MariaDB...'
-                            sudo yum install -y mariadb-server
+                            sudo yum install -y mariadb105-server
                             sudo systemctl start mariadb
                             sudo systemctl enable mariadb
 
