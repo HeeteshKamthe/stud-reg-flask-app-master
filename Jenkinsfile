@@ -84,7 +84,7 @@ pipeline {
                                 address TEXT NOT NULL,
                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                             );
-                            "\
+                            \"
 
                             echo '✅ Database, user, and table setup completed.'
                         "
