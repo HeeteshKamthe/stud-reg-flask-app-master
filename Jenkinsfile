@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         PYTHON = "python3"
-        PYTHON = "python3"
         DB_USER = "flaskuser"
         DB_PASSWORD = "flask123"   // change this to a strong password
         DB_NAME = "student_db"
