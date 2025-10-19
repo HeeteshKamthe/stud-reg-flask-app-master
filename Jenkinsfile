@@ -3,6 +3,10 @@ pipeline {
 
     environment {
         PYTHON = "python3"
+        PYTHON = "python3"
+        DB_USER = "flaskuser"
+        DB_PASSWORD = "flask123"   // change this to a strong password
+        DB_NAME = "student_db"
     }
 
     stages {
@@ -49,6 +53,48 @@ pipeline {
             }
         }
 
+        
+        stage('Setup Database') {
+            steps {
+                echo "🔹 Installing MariaDB and setting up database..."
+                withCredentials([
+                    string(credentialsId: 'ec2-host', variable: 'EC2_HOST'),
+                    sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY_PATH', usernameVariable: 'SSH_USER')
+                ]) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
+                            echo '🔹 Installing MariaDB...'
+                            sudo yum install -y mariadb-server
+                            sudo systemctl start mariadb
+                            sudo systemctl enable mariadb
+
+                            echo '🔹 Creating database and dedicated user...'
+                            mysql -u root <<EOF
+                            CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+                            CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
+                            GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
+                            FLUSH PRIVILEGES;
+
+                            USE ${DB_NAME};
+                            CREATE TABLE IF NOT EXISTS students (
+                                id INT AUTO_INCREMENT PRIMARY KEY,
+                                name VARCHAR(100) NOT NULL,
+                                email VARCHAR(100) UNIQUE NOT NULL,
+                                phone VARCHAR(20) NOT NULL,
+                                course VARCHAR(100) NOT NULL,
+                                address TEXT NOT NULL,
+                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            );
+                            EOF
+
+                            echo '✅ Database, user, and table setup completed.'
+                        "
+                    '''
+                }
+            }
+        }
+
+        
        stage('Deploy to EC2') {
     steps {
         echo "🔹 Deploying Flask app to EC2 securely..."
