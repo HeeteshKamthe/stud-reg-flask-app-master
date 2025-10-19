@@ -67,9 +67,12 @@ pipeline {
                     Jenkinsfile app.py config.py init.sql models.py requirements.txt run.py templates venv \
                     ${SSH_USER}@${EC2_HOST}:${APP_DIR}/
 
-                echo "🔹 Restarting Flask app on EC2..."
-                ssh -i "$KEY_PATH" -o StrictHostKeyChecking=no ${SSH_USER}@${EC2_HOST} "
+                echo "🔹 Installing dependencies and restarting app on EC2..."
+                ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
                     cd ${APP_DIR} &&
+                    source venv/bin/activate &&
+                    pip install -r requirements.txt &&
+                    pip install gunicorn &&
                     pkill -f gunicorn || true &&
                     nohup gunicorn run:app --bind 0.0.0.0:5000 --daemon
                 "
