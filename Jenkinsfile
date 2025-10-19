@@ -58,12 +58,11 @@ pipeline {
             string(credentialsId: 'app-dir', variable: 'APP_DIR')
         ]) {
             sh '''
-                echo "🔹 Transferring files to EC2..."
-                echo "Using key at: $KEY_PATH"
-                echo "Deploying to host: $EC2_HOST"
-                echo "App directory: $APP_DIR"
+                echo "🔹 Using key at: $KEY_PATH"
+                echo "🔹 Deploying to host: $EC2_HOST"
+                echo "🔹 App directory: $APP_DIR"
 
-                # Transfer project files
+                echo "🔹 Transferring files to EC2..."
                 scp -i "$KEY_PATH" -o StrictHostKeyChecking=no -r \
                     Jenkinsfile app.py config.py init.sql models.py requirements.txt run.py templates venv \
                     ${SSH_USER}@${EC2_HOST}:${APP_DIR}/
@@ -78,6 +77,7 @@ pipeline {
         }
     }
 }
+
 
     }
 
