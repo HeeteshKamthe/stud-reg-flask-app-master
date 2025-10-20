@@ -70,7 +70,7 @@ pipeline {
                             sudo systemctl enable mariadb
 
                             echo '🔹 Creating database and dedicated user...'
-                            sudo mysql -u root -e "
+                            cat > init.sql <<'EOF'
                             CREATE DATABASE IF NOT EXISTS ${DB_NAME};
                             CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
                             GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
@@ -85,7 +85,7 @@ pipeline {
                             address TEXT NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                             );
-                            "
+                            EOF
 
                             echo 'Database, user, and table setup completed.'
                         '
