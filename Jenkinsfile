@@ -26,7 +26,9 @@ pipeline {
                 sh '''
                     if ! dpkg -s python3-venv >/dev/null 2>&1; then
                         sudo apt-get update -y
+                        sudo yum install python3 -y
                         sudo apt-get install -y python3-venv
+                        sudo yum install python3-pip -y
                     fi
                     ${PYTHON} -m venv venv
                     . venv/bin/activate
@@ -46,7 +48,7 @@ pipeline {
                             python3 -m unittest discover -s tests || echo "⚠️ Tests failed, check logs."
                         '''
                     } else {
-                        echo "✅ No tests found, skipping..."
+                        echo "No tests found, skipping..."
                     }
                 }
             }
@@ -85,7 +87,7 @@ pipeline {
                             );
                             "
 
-                            echo '✅ Database, user, and table setup completed.'
+                            echo 'Database, user, and table setup completed.'
                         '
                     """
                 }
@@ -115,8 +117,6 @@ pipeline {
                 ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} "
                     cd ${APP_DIR} &&
                     source venv/bin/activate &&
-                    sudo yum install python3 -y
-                    sudo yum install python3-pip -y
                     pip install -r requirements.txt &&
                     pip install gunicorn &&
                     pkill gunicorn || true &&
@@ -132,10 +132,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment successful! Flask app is live on EC2."
+            echo " Deployment successful! Flask app is live on EC2."
         }
         failure {
-            echo "❌ Deployment failed! Check Jenkins and EC2 logs for details."
+            echo " Deployment failed! Check Jenkins and EC2 logs for details."
         }
     }
 }
