@@ -84,7 +84,8 @@ pipeline {
                               course VARCHAR(100) NOT NULL,
                               address TEXT NOT NULL,
                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                            );EOF
+                            );
+                            EOF
 
                             # Execute the SQL file
                             sudo mysql < init.sql
