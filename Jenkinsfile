@@ -70,7 +70,7 @@ pipeline {
                             sudo systemctl enable mariadb
 
                             echo "🔹 Creating database and dedicated user..."
-                            cat > init.sql <<'EOF'
+                            cat > init.sql <<EOF
                             CREATE DATABASE IF NOT EXISTS student_db;
                             CREATE USER IF NOT EXISTS 'flaskuser'@'localhost' IDENTIFIED BY 'flask123';
                             GRANT ALL PRIVILEGES ON student_db.* TO 'flaskuser'@'localhost';
