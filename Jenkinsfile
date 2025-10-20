@@ -70,28 +70,28 @@ pipeline {
                             sudo systemctl enable mariadb
 
                             echo "🔹 Creating database and dedicated user..."
-                            cat > init.sql <<EOF
+                            cat > init.sql <<'EOF'
                             CREATE DATABASE IF NOT EXISTS student_db;
                             CREATE USER IF NOT EXISTS 'flaskuser'@'localhost' IDENTIFIED BY 'flask123';
                             GRANT ALL PRIVILEGES ON student_db.* TO 'flaskuser'@'localhost';
                             FLUSH PRIVILEGES;
                             USE student_db;
                             CREATE TABLE IF NOT EXISTS students (
-                              id INT AUTO_INCREMENT PRIMARY KEY,
-                              name VARCHAR(100) NOT NULL,
-                              email VARCHAR(100) UNIQUE NOT NULL,
-                              phone VARCHAR(20) NOT NULL,
-                              course VARCHAR(100) NOT NULL,
-                              address TEXT NOT NULL,
-                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            name VARCHAR(100) NOT NULL,
+                            email VARCHAR(100) UNIQUE NOT NULL,
+                            phone VARCHAR(20) NOT NULL,
+                            course VARCHAR(100) NOT NULL,
+                            address TEXT NOT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                             );
                             EOF
-
+                            
                             # Execute the SQL file
                             sudo mysql < init.sql
-
                             echo "Database, user, and table setup completed."
-                        ENDSSH
+                            
+                            ENDSSH
 
                     """
                 }
