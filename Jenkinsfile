@@ -63,32 +63,36 @@ pipeline {
                     sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY_PATH', usernameVariable: 'SSH_USER')
                 ]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ${SSH_USER}@${EC2_HOST} '
-                            echo '🔹 Installing MariaDB...'
+                        ssh -o StrictHostKeyChecking=no -i "$KEY_PATH" ec2-user@"$EC2_HOST" <<'ENDSSH'
+                            echo "🔹 Installing MariaDB..."
                             sudo yum install -y mariadb105-server
                             sudo systemctl start mariadb
                             sudo systemctl enable mariadb
 
-                            echo '🔹 Creating database and dedicated user...'
+                            echo "🔹 Creating database and dedicated user..."
                             cat > init.sql <<'EOF'
-                            CREATE DATABASE IF NOT EXISTS ${DB_NAME};
-                            CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
-                            GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
+                            CREATE DATABASE IF NOT EXISTS student_db;
+                            CREATE USER IF NOT EXISTS 'flaskuser'@'localhost' IDENTIFIED BY 'flask123';
+                            GRANT ALL PRIVILEGES ON student_db.* TO 'flaskuser'@'localhost';
                             FLUSH PRIVILEGES;
-                            USE ${DB_NAME};
+                            USE student_db;
                             CREATE TABLE IF NOT EXISTS students (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(100) NOT NULL,
-                            email VARCHAR(100) UNIQUE NOT NULL,
-                            phone VARCHAR(20) NOT NULL,
-                            course VARCHAR(100) NOT NULL,
-                            address TEXT NOT NULL,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                              id INT AUTO_INCREMENT PRIMARY KEY,
+                              name VARCHAR(100) NOT NULL,
+                              email VARCHAR(100) UNIQUE NOT NULL,
+                              phone VARCHAR(20) NOT NULL,
+                              course VARCHAR(100) NOT NULL,
+                              address TEXT NOT NULL,
+                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                             );
                             EOF
 
-                            echo 'Database, user, and table setup completed.'
-                        '
+                            # Execute the SQL file
+                            sudo mysql < init.sql
+
+                            echo "Database, user, and table setup completed."
+                        ENDSSH
+
                     """
                 }
             }
