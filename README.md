@@ -81,6 +81,13 @@ stud-reg-flask-app-master/
    cd stud-reg-flask-app-master
    ```
 
+2. **Install Python & Pip**
+
+   ```bash
+   sudo yum install python3 -y
+   sudo yum install python3-pip -y
+   ```
+
 2. **Create Virtual Environment**
 
    ```bash
@@ -92,6 +99,7 @@ stud-reg-flask-app-master/
 
    ```bash
    pip install -r requirements.txt
+   pip install gunicorn
    ```
 
 4. **Initialize Database (optional local use)**
@@ -103,10 +111,10 @@ stud-reg-flask-app-master/
 5. **Run Application**
 
    ```bash
-   python run.py
+   gunicorn run:app --bind 0.0.0.0:5000
    ```
 
-   Open [http://127.0.0.1:5000](http://127.0.0.1:5000)
+   Open [http://<your_ip>:5000](http:/<your_ip>:5000)
 
 ---
 
