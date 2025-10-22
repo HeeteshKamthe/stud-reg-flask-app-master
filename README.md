@@ -258,7 +258,7 @@ stage('Deploy to EC2') {
    <p align="center"> <img src="img/home_page.jpg" alt="home page" width="800"/> </p>
    
 3. **Jenkins Configuration**
-   <p align="center"> <img src="img/jenkins_pipeline_config.jpg" alt="jenkins_pipeline_config" width="800"/> </p>
+   <p align="center"> <img src="img/jenkins_pipeline_config.png" alt="jenkins_pipeline_config" width="800"/> </p>
    
 5. **Jenkins Build Console Output**
    <p align="center"> <img src="img/jenkins_pipeline_success.jpg" alt="jenkins_pipeline_success" width="800"/> </p>
