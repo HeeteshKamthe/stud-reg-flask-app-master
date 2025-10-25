@@ -86,6 +86,7 @@ stud-reg-flask-app-master/
    ```bash
    sudo yum install python3 -y
    sudo yum install python3-pip -y
+   sudo yum install python-3.12-venv -y
    ```
 
 2. **Create Virtual Environment**
