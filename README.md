@@ -47,13 +47,13 @@ stud-reg-flask-app-master/
 
 ## ⚙️ Features
 
-✅ Register new students
-✅ View all registered students
-✅ Edit or delete student records
-✅ Uses MariaDB as backend database
-✅ Jenkins pipeline for continuous integration & deployment
-✅ Auto-creates database, tables, and user on EC2
-✅ Serves app via Gunicorn
+✅ Register new students <br>
+✅ View all registered students<br>
+✅ Edit or delete student records<br>
+✅ Uses MariaDB as backend database<br>
+✅ Jenkins pipeline for continuous integration & deployment<br>
+✅ Auto-creates database, tables, and user on EC2<br>
+✅ Serves app via Gunicorn<br>
 
 ---
 
