@@ -1,5 +1,8 @@
 CREATE DATABASE student_db;
 USE student_db;
+CREATE USER IF NOT EXISTS 'flaskuser'@'localhost' IDENTIFIED BY 'flask123';
+GRANT ALL PRIVILEGES ON student_db.* TO 'flaskuser'@'localhost';
+FLUSH PRIVILEGES;
 CREATE TABLE students (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
